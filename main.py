@@ -147,7 +147,8 @@ class AppGUI(QtGui.QWidget):
         
         self.model = LungsModel()
 
-        self.data = self.model.P
+        # self.data = self.model.ro
+        self.data = self.model.r
         self.observ_slice = np.zeros(self.model.signal_window)
         self.z_slice = self.model.A
         self.y_slice = self.model.B
@@ -347,7 +348,7 @@ class AppGUI(QtGui.QWidget):
         self.x_slice_slider.setTickPosition(QtGui.QSlider.TicksBelow)
         self.x_slice_slider.setTickInterval(1)
 
-        self.layout.addLayout(self.model_params_layout)
+        # self.layout.addLayout(self.model_params_layout)
         # self.layout.addLayout(self.radio_layout)
         self.layout.addWidget(self.z_slice_label)
         self.layout.addWidget(self.z_slice_slider)
@@ -369,9 +370,9 @@ class AppGUI(QtGui.QWidget):
 
     def qt_connections(self):
         self.step_button.clicked.connect(self.do_steps)
-        self.l_spin.valueChanged.connect(self.l_spin_value_changed)
-        self.h_spin.valueChanged.connect(self.h_spin_value_changed)
-        self.f_spin.valueChanged.connect(self.f_spin_value_changed)
+        # self.l_spin.valueChanged.connect(self.l_spin_value_changed)
+        # self.h_spin.valueChanged.connect(self.h_spin_value_changed)
+        # self.f_spin.valueChanged.connect(self.f_spin_value_changed)
         self.reset_params_button.clicked.connect(self.reset_params)
         self.reinit_button.clicked.connect(self.reinit_model)
         self.z_slice_slider.valueChanged.connect(self.z_slice_slider_changed)
