@@ -15,8 +15,10 @@ class AppGUI(QtGui.QWidget):
         # self.data = self.model.ro
         self.X = np.load('cube.npy')
 
-        N = self.X.shape[1]
-        self.z, self.y, self.x = 2, N // 2, N // 2  # sound source location
+        self.z = self.X.shape[0] // 2
+        self.y = self.X.shape[1] // 2
+        self.x = self.X.shape[2] // 2
+
 
         self.init_ui()
         self.qt_connections()
@@ -25,9 +27,9 @@ class AppGUI(QtGui.QWidget):
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('imageAxisOrder', 'row-major')
 
-        self.zname = ('Head', 'Feet')
-        self.yname = ('Face', 'Back')
-        self.xname = ('Left Hand', 'Right Hand')
+        self.zname = 'Head', 'Feet'
+        self.yname = 'Face', 'Back'
+        self.xname = 'Left Hand', 'Right Hand'
 
 
         self.layout = QtGui.QVBoxLayout()
