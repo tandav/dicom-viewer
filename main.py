@@ -16,13 +16,7 @@ class AppGUI(QtGui.QWidget):
         self.X = np.load('cube.npy')
 
         N = self.X.shape[1]
-        self.A, self.B, self.C = 2, N // 2, N // 2  # sound source location
-        self.slice = 2, N // 2, N // 2 # sound source location
-
-        self.z = self.A
-        self.y = self.B
-        self.x = self.C
-
+        self.z, self.y, self.x = 2, N // 2, N // 2  # sound source location
 
         self.init_ui()
         self.qt_connections()
@@ -55,10 +49,9 @@ class AppGUI(QtGui.QWidget):
         self.glayout.ci.layout.setContentsMargins(0, 0, 0, 0)
         self.glayout.ci.layout.setSpacing(0)
 
-        self.zi = pg.ImageItem(self.X[self.slice[0], :            , :            ], autoLevels=self.autolevels, levels=self.levels, border=pg.mkPen(color='r', width=3))
-        self.yi = pg.ImageItem(self.X[:            , self.slice[1], :            ], autoLevels=self.autolevels, levels=self.levels, border=pg.mkPen(color='g', width=3))
-        self.xi = pg.ImageItem(self.X[:,             :            , self.slice[2]], autoLevels=self.autolevels, levels=self.levels, border=pg.mkPen(color='b', width=3))
-
+        self.zi = pg.ImageItem(self.X[self.z, :     , :     ], autoLevels=self.autolevels, levels=self.levels, border=pg.mkPen(color='r', width=3))
+        self.yi = pg.ImageItem(self.X[:     , self.y, :     ], autoLevels=self.autolevels, levels=self.levels, border=pg.mkPen(color='g', width=3))
+        self.xi = pg.ImageItem(self.X[:     , :     , self.x], autoLevels=self.autolevels, levels=self.levels, border=pg.mkPen(color='b', width=3))
         self.zp = self.glayout.addPlot()
         self.yp = self.glayout.addPlot()
         self.xp = self.glayout.addPlot()
@@ -158,7 +151,7 @@ class AppGUI(QtGui.QWidget):
             self.zs.setValue(self.z)
         elif self.yi.sceneBoundingRect().contains(self.glayout.mapFromParent(event.pos())):
             self.y = np.clip(self.y + np.sign(event.angleDelta().y()), 0, self.X.shape[1] - 1) # change bounds 0..N-1 => 1..N
-            self.ts.setValue(self.y)
+            self.ys.setValue(self.y)
         elif self.xi.sceneBoundingRect().contains(self.glayout.mapFromParent(event.pos())):
             self.x = np.clip(self.x + np.sign(event.angleDelta().y()), 0, self.X.shape[2] - 1) # change bounds 0..N-1 => 1..N
             self.xs.setValue(self.x)
