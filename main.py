@@ -1,9 +1,10 @@
 from pyqtgraph.Qt import QtCore, QtGui
-from PyQt5.QtGui import QApplication
 import pyqtgraph as pg
 import numpy as np
 import sys
 import signal
+import pydicom
+
 
 
 
@@ -12,8 +13,7 @@ class AppGUI(QtGui.QWidget):
     def __init__(self):
         super().__init__()
 
-        # self.data = self.model.ro
-        self.X = np.load('cube.npy')
+        self.X = pydicom.dcmread('images/.dcm').pixel_array
 
         self.z = self.X.shape[0] // 2
         self.y = self.X.shape[1] // 2
