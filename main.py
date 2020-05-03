@@ -13,10 +13,9 @@ class AppGUI(QtGui.QWidget):
         super().__init__()
 
         # self.data = self.model.ro
-        self.data = np.load('cube.npy')
-        self.X = self.data
+        self.X = np.load('cube.npy')
 
-        N = self.data.shape[1]
+        N = self.X.shape[1]
         self.A, self.B, self.C = 2, N // 2, N // 2  # sound source location
         self.slice = 2, N // 2, N // 2 # sound source location
 
@@ -43,9 +42,9 @@ class AppGUI(QtGui.QWidget):
         self.setWindowTitle('DICOM Viewer')
 
 
-        self.z_slice_label = QtGui.QLabel(f'Z axis [{self.zname[0]} - {self.zname[1]}] Slice: {self.z + 1}/{self.data.shape[0]}')
-        self.y_slice_label = QtGui.QLabel(f'Y axis [{self.yname[0]} - {self.yname[1]}] Slice: {self.y + 1}/{self.data.shape[1]}')
-        self.x_slice_label = QtGui.QLabel(f'X axis [{self.xname[0]} - {self.xname[1]}] Slice: {self.x + 1}/{self.data.shape[2]}')
+        self.z_slice_label = QtGui.QLabel(f'Z axis [{self.zname[0]} - {self.zname[1]}] Slice: {self.z + 1}/{self.X.shape[0]}')
+        self.y_slice_label = QtGui.QLabel(f'Y axis [{self.yname[0]} - {self.yname[1]}] Slice: {self.y + 1}/{self.X.shape[1]}')
+        self.x_slice_label = QtGui.QLabel(f'X axis [{self.xname[0]} - {self.xname[1]}] Slice: {self.x + 1}/{self.X.shape[2]}')
 
 
         # slices plots ----------------------------------------------------------------
@@ -102,9 +101,9 @@ class AppGUI(QtGui.QWidget):
         self.yp.addItem(self.yi)
         self.xp.addItem(self.xi)
 
-        self.zi.setRect(pg.QtCore.QRectF(0, 0, self.data.shape[2], self.data.shape[1]))
-        self.yi.setRect(pg.QtCore.QRectF(0, 0, self.data.shape[2], self.data.shape[0]))
-        self.xi.setRect(pg.QtCore.QRectF(0, 0, self.data.shape[1], self.data.shape[0]))
+        self.zi.setRect(pg.QtCore.QRectF(0, 0, self.X.shape[2], self.X.shape[1]))
+        self.yi.setRect(pg.QtCore.QRectF(0, 0, self.X.shape[2], self.X.shape[0]))
+        self.xi.setRect(pg.QtCore.QRectF(0, 0, self.X.shape[1], self.X.shape[0]))
 
         self.zi.setZValue(-1)
         self.yi.setZValue(-1)
@@ -114,7 +113,7 @@ class AppGUI(QtGui.QWidget):
         self.zs = QtGui.QSlider()
         self.zs.setStyleSheet('background-color: rgba(255, 0, 0, 0.2)')
         self.zs.setOrientation(QtCore.Qt.Horizontal)
-        self.zs.setRange(0, self.data.shape[0] - 1)
+        self.zs.setRange(0, self.X.shape[0] - 1)
         self.zs.setValue(self.z)
         self.zs.setTickPosition(QtGui.QSlider.TicksBelow)
         self.zs.setTickInterval(1)
@@ -122,7 +121,7 @@ class AppGUI(QtGui.QWidget):
         self.ys = QtGui.QSlider()
         self.ys.setStyleSheet('background-color: rgba(0, 255, 0, 0.2)')
         self.ys.setOrientation(QtCore.Qt.Horizontal)
-        self.ys.setRange(0, self.data.shape[1] - 1)
+        self.ys.setRange(0, self.X.shape[1] - 1)
         self.ys.setValue(self.y)
         self.ys.setTickPosition(QtGui.QSlider.TicksBelow)
         self.ys.setTickInterval(1)
@@ -130,7 +129,7 @@ class AppGUI(QtGui.QWidget):
         self.xs = QtGui.QSlider()
         self.xs.setStyleSheet('background-color: rgba(0, 0, 255, 0.2)')
         self.xs.setOrientation(QtCore.Qt.Horizontal)
-        self.xs.setRange(0, self.data.shape[2] - 1)
+        self.xs.setRange(0, self.X.shape[2] - 1)
         self.xs.setValue(self.x)
         self.xs.setTickPosition(QtGui.QSlider.TicksBelow)
         self.xs.setTickInterval(1)
@@ -155,23 +154,17 @@ class AppGUI(QtGui.QWidget):
 
     def wheelEvent(self, event):
         if self.zi.sceneBoundingRect().contains(self.glayout.mapFromParent(event.pos())):
-            self.z = np.clip(self.z + np.sign(event.angleDelta().y()), 0, self.data.shape[0] - 1) # change bounds 0..N-1 => 1..N
+            self.z = np.clip(self.z + np.sign(event.angleDelta().y()), 0, self.X.shape[0] - 1) # change bounds 0..N-1 => 1..N
             self.zs.setValue(self.z)
         elif self.yi.sceneBoundingRect().contains(self.glayout.mapFromParent(event.pos())):
-            self.y = np.clip(self.y + np.sign(event.angleDelta().y()), 0, self.data.shape[1] - 1) # change bounds 0..N-1 => 1..N
+            self.y = np.clip(self.y + np.sign(event.angleDelta().y()), 0, self.X.shape[1] - 1) # change bounds 0..N-1 => 1..N
             self.ts.setValue(self.y)
         elif self.xi.sceneBoundingRect().contains(self.glayout.mapFromParent(event.pos())):
-            self.x = np.clip(self.x + np.sign(event.angleDelta().y()), 0, self.data.shape[2] - 1) # change bounds 0..N-1 => 1..N
+            self.x = np.clip(self.x + np.sign(event.angleDelta().y()), 0, self.X.shape[2] - 1) # change bounds 0..N-1 => 1..N
             self.xs.setValue(self.x)
 
 
     def update_slice_helpers_lines(self):
-        # self.z_slice_plot_y_helper.setData([0           , self.data.shape[2] ], [self.y_slice, self.y_slice      ])
-        # self.z_slice_plot_x_helper.setData([self.x_slice, self.x_slice       ], [0           , self.data.shape[1]])
-        # self.y_slice_plot_z_helper.setData([0           , self.data.shape[2] ], [self.z_slice, self.z_slice      ])
-        # self.y_slice_plot_x_helper.setData([self.x_slice, self.x_slice       ], [0           , self.data.shape[0]])
-        # self.x_slice_plot_z_helper.setData([0           , self.data.shape[1] ], [self.z_slice, self.z_slice      ])
-        # self.x_slice_plot_y_helper.setData([self.y_slice, self.y_slice       ], [0           , self.data.shape[0]])
         self.z_slice_plot_y_helper1.setData([0               , self.X.shape[2]], [self.y    , self.y         ])
         self.z_slice_plot_y_helper2.setData([0               , self.X.shape[2]], [self.y + 1, self.y + 1     ])
         self.z_slice_plot_x_helper1.setData([self.x          , self.x         ], [0         , self.X.shape[1]])
