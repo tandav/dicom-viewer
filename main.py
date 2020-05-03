@@ -9,8 +9,6 @@ import signal
 
 
 class AppGUI(QtGui.QWidget):
-    steps_state = QtCore.pyqtSignal([int])
-
     def __init__(self):
         super().__init__()
 
@@ -42,7 +40,7 @@ class AppGUI(QtGui.QWidget):
         self.layout = QtGui.QVBoxLayout()
 
         self.setGeometry(0, 0, 1440, 900)
-        self.setWindowTitle('Lungs Model')
+        self.setWindowTitle('DICOM Viewer')
 
 
         self.z_slice_label = QtGui.QLabel(f'Z axis [{self.zname[0]} - {self.zname[1]}] Slice: {self.z + 1}/{self.data.shape[0]}')
@@ -62,47 +60,47 @@ class AppGUI(QtGui.QWidget):
         self.yi = pg.ImageItem(self.X[:            , self.slice[1], :            ], autoLevels=self.autolevels, levels=self.levels, border=pg.mkPen(color='g', width=3))
         self.xi = pg.ImageItem(self.X[:,             :            , self.slice[2]], autoLevels=self.autolevels, levels=self.levels, border=pg.mkPen(color='b', width=3))
 
-        self.z_slice_plot = self.glayout.addPlot()
-        self.y_slice_plot = self.glayout.addPlot()
-        self.x_slice_plot = self.glayout.addPlot()
+        self.zp = self.glayout.addPlot()
+        self.yp = self.glayout.addPlot()
+        self.xp = self.glayout.addPlot()
         # self.z_slice_plot.setTitle(f'Z axis [{self.z_axis_name[0]} - {self.z_axis_name[1]}]')
         # self.y_slice_plot.setTitle(f'Y axis [{self.y_axis_name[0]} - {self.y_axis_name[1]}]')
         # self.x_slice_plot.setTitle(f'X axis [{self.x_axis_name[0]} - {self.x_axis_name[1]}]')
-        self.z_slice_plot.setAspectLocked()
-        self.y_slice_plot.setAspectLocked()
-        self.x_slice_plot.setAspectLocked()
+        self.zp.setAspectLocked()
+        self.yp.setAspectLocked()
+        self.xp.setAspectLocked()
 
-        self.z_slice_plot.setMouseEnabled(x=False, y=False)
-        self.y_slice_plot.setMouseEnabled(x=False, y=False)
-        self.x_slice_plot.setMouseEnabled(x=False, y=False)
+        self.zp.setMouseEnabled(x=False, y=False)
+        self.yp.setMouseEnabled(x=False, y=False)
+        self.xp.setMouseEnabled(x=False, y=False)
 
-        self.z_slice_plot_y_helper1 = self.z_slice_plot.plot([0        ,  self.X.shape[2]], [self.y    , self.y         ], pen='g')
-        self.z_slice_plot_y_helper2 = self.z_slice_plot.plot([0        ,  self.X.shape[2]], [self.y + 1, self.y + 1     ], pen='g')
-        self.z_slice_plot_x_helper1 = self.z_slice_plot.plot([self.x   ,  self.x         ], [0         , self.X.shape[1]], pen='b')
-        self.z_slice_plot_x_helper2 = self.z_slice_plot.plot([self.x + 1, self.x + 1     ], [0         , self.X.shape[1]], pen='b')
-        self.y_slice_plot_z_helper1 = self.y_slice_plot.plot([0        ,  self.X.shape[2]], [self.z    , self.z         ], pen='r')
-        self.y_slice_plot_z_helper2 = self.y_slice_plot.plot([0        ,  self.X.shape[2]], [self.z + 1, self.z + 1     ], pen='r')
-        self.y_slice_plot_x_helper1 = self.y_slice_plot.plot([self.x    , self.x         ], [0         , self.X.shape[0]], pen='b')
-        self.y_slice_plot_x_helper2 = self.y_slice_plot.plot([self.x + 1, self.x + 1     ], [0         , self.X.shape[0]], pen='b')
-        self.x_slice_plot_z_helper1 = self.x_slice_plot.plot([0        ,  self.X.shape[1]], [self.z    , self.z         ], pen='r')
-        self.x_slice_plot_z_helper2 = self.x_slice_plot.plot([0        ,  self.X.shape[1]], [self.z + 1, self.z + 1     ], pen='r')
-        self.x_slice_plot_y_helper1 = self.x_slice_plot.plot([self.y    , self.y         ], [0         , self.X.shape[0]], pen='g')
-        self.x_slice_plot_y_helper2 = self.x_slice_plot.plot([self.y + 1, self.y + 1     ], [0         , self.X.shape[0]], pen='g')
+        self.z_slice_plot_y_helper1 = self.zp.plot([0        ,  self.X.shape[2]], [self.y    , self.y         ], pen='g')
+        self.z_slice_plot_y_helper2 = self.zp.plot([0        ,  self.X.shape[2]], [self.y + 1, self.y + 1     ], pen='g')
+        self.z_slice_plot_x_helper1 = self.zp.plot([self.x   ,  self.x         ], [0         , self.X.shape[1]], pen='b')
+        self.z_slice_plot_x_helper2 = self.zp.plot([self.x + 1, self.x + 1     ], [0         , self.X.shape[1]], pen='b')
+        self.y_slice_plot_z_helper1 = self.yp.plot([0        ,  self.X.shape[2]], [self.z    , self.z         ], pen='r')
+        self.y_slice_plot_z_helper2 = self.yp.plot([0        ,  self.X.shape[2]], [self.z + 1, self.z + 1     ], pen='r')
+        self.y_slice_plot_x_helper1 = self.yp.plot([self.x    , self.x         ], [0         , self.X.shape[0]], pen='b')
+        self.y_slice_plot_x_helper2 = self.yp.plot([self.x + 1, self.x + 1     ], [0         , self.X.shape[0]], pen='b')
+        self.x_slice_plot_z_helper1 = self.xp.plot([0        ,  self.X.shape[1]], [self.z    , self.z         ], pen='r')
+        self.x_slice_plot_z_helper2 = self.xp.plot([0        ,  self.X.shape[1]], [self.z + 1, self.z + 1     ], pen='r')
+        self.x_slice_plot_y_helper1 = self.xp.plot([self.y    , self.y         ], [0         , self.X.shape[0]], pen='g')
+        self.x_slice_plot_y_helper2 = self.xp.plot([self.y + 1, self.y + 1     ], [0         , self.X.shape[0]], pen='g')
 
-        self.z_slice_plot.invertY(True)
-        self.y_slice_plot.invertY(True)
-        self.x_slice_plot.invertY(True)
+        self.zp.invertY(True)
+        self.yp.invertY(True)
+        self.xp.invertY(True)
 
-        self.z_slice_plot.setLabel('bottom', f'X axis [{self.xname[0]} - {self.xname[1]}]')
-        self.y_slice_plot.setLabel('bottom', f'X axis [{self.xname[0]} - {self.xname[1]}]')
-        self.z_slice_plot.setLabel('left'  , f'Y axis [{self.yname[1]} - {self.yname[0]}]')
-        self.x_slice_plot.setLabel('bottom', f'Y axis [{self.yname[0]} - {self.yname[1]}]')
-        self.y_slice_plot.setLabel('left'  , f'Z axis [{self.zname[1]} - {self.zname[0]}]')
-        self.x_slice_plot.setLabel('left'  , f'Z axis [{self.zname[1]} - {self.zname[0]}]')
+        self.zp.setLabel('bottom', f'X axis [{self.xname[0]} - {self.xname[1]}]')
+        self.yp.setLabel('bottom', f'X axis [{self.xname[0]} - {self.xname[1]}]')
+        self.zp.setLabel('left'  , f'Y axis [{self.yname[1]} - {self.yname[0]}]')
+        self.xp.setLabel('bottom', f'Y axis [{self.yname[0]} - {self.yname[1]}]')
+        self.yp.setLabel('left'  , f'Z axis [{self.zname[1]} - {self.zname[0]}]')
+        self.xp.setLabel('left'  , f'Z axis [{self.zname[1]} - {self.zname[0]}]')
 
-        self.z_slice_plot.addItem(self.zi)
-        self.y_slice_plot.addItem(self.yi)
-        self.x_slice_plot.addItem(self.xi)
+        self.zp.addItem(self.zi)
+        self.yp.addItem(self.yi)
+        self.xp.addItem(self.xi)
 
         self.zi.setRect(pg.QtCore.QRectF(0, 0, self.data.shape[2], self.data.shape[1]))
         self.yi.setRect(pg.QtCore.QRectF(0, 0, self.data.shape[2], self.data.shape[0]))
@@ -113,64 +111,58 @@ class AppGUI(QtGui.QWidget):
         self.xi.setZValue(-1)
 
 
-        self.z_slice_slider = QtGui.QSlider()
-        self.z_slice_slider.setStyleSheet('background-color: rgba(255, 0, 0, 0.2)')
-        self.z_slice_slider.setOrientation(QtCore.Qt.Horizontal)
-        self.z_slice_slider.setRange(0, self.data.shape[0] - 1)
-        self.z_slice_slider.setValue(self.z)
-        self.z_slice_slider.setTickPosition(QtGui.QSlider.TicksBelow)
-        self.z_slice_slider.setTickInterval(1)
+        self.zs = QtGui.QSlider()
+        self.zs.setStyleSheet('background-color: rgba(255, 0, 0, 0.2)')
+        self.zs.setOrientation(QtCore.Qt.Horizontal)
+        self.zs.setRange(0, self.data.shape[0] - 1)
+        self.zs.setValue(self.z)
+        self.zs.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.zs.setTickInterval(1)
         
-        self.y_slice_slider = QtGui.QSlider()
-        self.y_slice_slider.setStyleSheet('background-color: rgba(0, 255, 0, 0.2)')
-        self.y_slice_slider.setOrientation(QtCore.Qt.Horizontal)
-        self.y_slice_slider.setRange(0, self.data.shape[1] - 1)
-        self.y_slice_slider.setValue(self.y)
-        self.y_slice_slider.setTickPosition(QtGui.QSlider.TicksBelow)
-        self.y_slice_slider.setTickInterval(1)
+        self.ys = QtGui.QSlider()
+        self.ys.setStyleSheet('background-color: rgba(0, 255, 0, 0.2)')
+        self.ys.setOrientation(QtCore.Qt.Horizontal)
+        self.ys.setRange(0, self.data.shape[1] - 1)
+        self.ys.setValue(self.y)
+        self.ys.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.ys.setTickInterval(1)
 
-        self.x_slice_slider = QtGui.QSlider()
-        self.x_slice_slider.setStyleSheet('background-color: rgba(0, 0, 255, 0.2)')
-        self.x_slice_slider.setOrientation(QtCore.Qt.Horizontal)
-        self.x_slice_slider.setRange(0, self.data.shape[2] - 1)
-        self.x_slice_slider.setValue(self.x)
-        self.x_slice_slider.setTickPosition(QtGui.QSlider.TicksBelow)
-        self.x_slice_slider.setTickInterval(1)
+        self.xs = QtGui.QSlider()
+        self.xs.setStyleSheet('background-color: rgba(0, 0, 255, 0.2)')
+        self.xs.setOrientation(QtCore.Qt.Horizontal)
+        self.xs.setRange(0, self.data.shape[2] - 1)
+        self.xs.setValue(self.x)
+        self.xs.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.xs.setTickInterval(1)
 
         self.layout.addWidget(self.z_slice_label)
-        self.layout.addWidget(self.z_slice_slider)
+        self.layout.addWidget(self.zs)
         self.layout.addWidget(self.y_slice_label)
-        self.layout.addWidget(self.y_slice_slider)
+        self.layout.addWidget(self.ys)
         self.layout.addWidget(self.x_slice_label)
-        self.layout.addWidget(self.x_slice_slider)
+        self.layout.addWidget(self.xs)
         self.layout.addWidget(self.glayout)
-
         self.setLayout(self.layout)
 
         self.show()
 
-    def qt_connections(self):
-        self.z_slice_slider.valueChanged.connect(self.z_slice_slider_changed)
-        self.y_slice_slider.valueChanged.connect(self.y_slice_slider_changed)
-        self.x_slice_slider.valueChanged.connect(self.x_slice_slider_changed)
-        self.steps_state.connect(self.update_steps_progress_bar)
 
-    @QtCore.pyqtSlot(int)
-    def update_steps_progress_bar(self, current_step):
-        self.steps_progress_bar.setValue(current_step / self.steps_spin.value() * 100)
-        QApplication.processEvents() 
+    def qt_connections(self):
+        self.zs.valueChanged.connect(self.zs_changed)
+        self.ys.valueChanged.connect(self.ys_changed)
+        self.xs.valueChanged.connect(self.xs_changed)
 
 
     def wheelEvent(self, event):
         if self.zi.sceneBoundingRect().contains(self.glayout.mapFromParent(event.pos())):
             self.z = np.clip(self.z + np.sign(event.angleDelta().y()), 0, self.data.shape[0] - 1) # change bounds 0..N-1 => 1..N
-            self.z_slice_slider.setValue(self.z)
+            self.zs.setValue(self.z)
         elif self.yi.sceneBoundingRect().contains(self.glayout.mapFromParent(event.pos())):
             self.y = np.clip(self.y + np.sign(event.angleDelta().y()), 0, self.data.shape[1] - 1) # change bounds 0..N-1 => 1..N
-            self.y_slice_slider.setValue(self.y)
+            self.ts.setValue(self.y)
         elif self.xi.sceneBoundingRect().contains(self.glayout.mapFromParent(event.pos())):
             self.x = np.clip(self.x + np.sign(event.angleDelta().y()), 0, self.data.shape[2] - 1) # change bounds 0..N-1 => 1..N
-            self.x_slice_slider.setValue(self.x)
+            self.xs.setValue(self.x)
 
 
     def update_slice_helpers_lines(self):
@@ -193,20 +185,20 @@ class AppGUI(QtGui.QWidget):
         self.x_slice_plot_y_helper1.setData([self.y          , self.y         ], [0         , self.X.shape[0]])
         self.x_slice_plot_y_helper2.setData([self.y + 1      , self.y + 1     ], [0         , self.X.shape[0]])
 
-    def z_slice_slider_changed(self):
-        self.z = self.z_slice_slider.value()
+    def zs_changed(self):
+        self.z = self.zs.value()
         self.z_slice_label.setText(f'Z axis [{self.zname[0]} - {self.zname[1]}] Slice: {self.z + 1}/{self.X.shape[0]}')
         self.zi.setImage(self.X[self.z, :, :])
         self.update_slice_helpers_lines()
 
-    def y_slice_slider_changed(self):
-        self.y = self.y_slice_slider.value()
+    def ys_changed(self):
+        self.y = self.ys.value()
         self.y_slice_label.setText(f'Y axis [{self.yname[0]} - {self.yname[1]}] Slice: {self.y + 1}/{self.X.shape[1]}')
         self.yi.setImage(self.X[:, self.y, :])
         self.update_slice_helpers_lines()
 
-    def x_slice_slider_changed(self):
-        self.x = self.x_slice_slider.value()
+    def xs_changed(self):
+        self.x = self.xs.value()
         self.x_slice_label.setText(f'X axis [{self.xname[0]} - {self.xname[1]}] Slice: {self.x + 1}/{self.X.shape[2]}')
         self.xi.setImage(self.X[:, :, self.x])
         self.update_slice_helpers_lines()
