@@ -16,13 +16,16 @@ class AppGUI(QtGui.QWidget):
 
         # self.data = self.model.ro
         self.data = np.load('cube.npy')
+        self.X = self.data
 
         N = self.data.shape[1]
         self.A, self.B, self.C = 2, N // 2, N // 2  # sound source location
+        self.slice = 2, N // 2, N // 2 # sound source location
 
         self.z_slice = self.A
         self.y_slice = self.B
         self.x_slice = self.C
+
 
         self.init_ui()
         self.qt_connections()
@@ -54,21 +57,25 @@ class AppGUI(QtGui.QWidget):
         self.glayout = pg.GraphicsLayoutWidget()
         self.glayout.ci.layout.setContentsMargins(0, 0, 0, 0)
         self.glayout.ci.layout.setSpacing(0)
-        self.z_slice_img = pg.ImageItem(self.data[self.z_slice, :, :], autoLevels=self.autolevels, levels=self.levels, border=pg.mkPen(color='r', width=3))
-        self.y_slice_img = pg.ImageItem(self.data[:, self.y_slice, :], autoLevels=self.autolevels, levels=self.levels, border=pg.mkPen(color='g', width=3))
-        self.x_slice_img = pg.ImageItem(self.data[:, :, self.x_slice], autoLevels=self.autolevels, levels=self.levels, border=pg.mkPen(color='b', width=3))
+
+        self.z_slice_img = pg.ImageItem(self.X[self.slice[0], :            , :            ], autoLevels=self.autolevels, levels=self.levels, border=pg.mkPen(color='r', width=3))
+        self.y_slice_img = pg.ImageItem(self.X[:            , self.slice[1], :            ], autoLevels=self.autolevels, levels=self.levels, border=pg.mkPen(color='g', width=3))
+        self.x_slice_img = pg.ImageItem(self.X[:,             :            , self.slice[2]], autoLevels=self.autolevels, levels=self.levels, border=pg.mkPen(color='b', width=3))
+
         self.z_slice_plot = self.glayout.addPlot()
         self.y_slice_plot = self.glayout.addPlot()
         self.x_slice_plot = self.glayout.addPlot()
         # self.z_slice_plot.setTitle(f'Z axis [{self.z_axis_name[0]} - {self.z_axis_name[1]}]')
         # self.y_slice_plot.setTitle(f'Y axis [{self.y_axis_name[0]} - {self.y_axis_name[1]}]')
         # self.x_slice_plot.setTitle(f'X axis [{self.x_axis_name[0]} - {self.x_axis_name[1]}]')
-        self.z_slice_plot.setAspectLocked() 
-        self.y_slice_plot.setAspectLocked() 
-        self.x_slice_plot.setAspectLocked() 
+        self.z_slice_plot.setAspectLocked()
+        self.y_slice_plot.setAspectLocked()
+        self.x_slice_plot.setAspectLocked()
+
         self.z_slice_plot.setMouseEnabled(x=False, y=False)
         self.y_slice_plot.setMouseEnabled(x=False, y=False)
         self.x_slice_plot.setMouseEnabled(x=False, y=False)
+
         self.z_slice_plot_y_helper1 = self.z_slice_plot.plot([0               , self.data.shape[2] ], [self.y_slice    , self.y_slice      ], pen='g')
         self.z_slice_plot_y_helper2 = self.z_slice_plot.plot([0               , self.data.shape[2] ], [self.y_slice + 1, self.y_slice + 1  ], pen='g')
         self.z_slice_plot_x_helper1 = self.z_slice_plot.plot([self.x_slice    , self.x_slice       ], [0               , self.data.shape[1]], pen='b')
@@ -81,25 +88,29 @@ class AppGUI(QtGui.QWidget):
         self.x_slice_plot_z_helper2 = self.x_slice_plot.plot([0               , self.data.shape[1] ], [self.z_slice + 1, self.z_slice + 1  ], pen='r')
         self.x_slice_plot_y_helper1 = self.x_slice_plot.plot([self.y_slice    , self.y_slice       ], [0               , self.data.shape[0]], pen='g')
         self.x_slice_plot_y_helper2 = self.x_slice_plot.plot([self.y_slice + 1, self.y_slice + 1   ], [0               , self.data.shape[0]], pen='g')
+
         self.z_slice_plot.invertY(True)
         self.y_slice_plot.invertY(True)
         self.x_slice_plot.invertY(True)
+
         self.z_slice_plot.setLabel('bottom', f'X axis [{self.x_axis_name[0]} - {self.x_axis_name[1]}]')
         self.z_slice_plot.setLabel('left'  , f'Y axis [{self.y_axis_name[1]} - {self.y_axis_name[0]}]')
         self.y_slice_plot.setLabel('bottom', f'X axis [{self.x_axis_name[0]} - {self.x_axis_name[1]}]')
         self.y_slice_plot.setLabel('left'  , f'Z axis [{self.z_axis_name[1]} - {self.z_axis_name[0]}]')
         self.x_slice_plot.setLabel('bottom', f'Y axis [{self.y_axis_name[0]} - {self.y_axis_name[1]}]')
         self.x_slice_plot.setLabel('left'  , f'Z axis [{self.z_axis_name[1]} - {self.z_axis_name[0]}]')
+
         self.z_slice_plot.addItem(self.z_slice_img)
         self.y_slice_plot.addItem(self.y_slice_img)
         self.x_slice_plot.addItem(self.x_slice_img)
+
         self.z_slice_img.setRect(pg.QtCore.QRectF(0, 0, self.data.shape[2], self.data.shape[1]))
         self.y_slice_img.setRect(pg.QtCore.QRectF(0, 0, self.data.shape[2], self.data.shape[0]))
         self.x_slice_img.setRect(pg.QtCore.QRectF(0, 0, self.data.shape[1], self.data.shape[0]))
+
         self.z_slice_img.setZValue(-1)
         self.y_slice_img.setZValue(-1)
         self.x_slice_img.setZValue(-1)
-
 
 
         self.z_slice_slider = QtGui.QSlider()
@@ -137,7 +148,6 @@ class AppGUI(QtGui.QWidget):
         self.setLayout(self.layout)
 
         self.setGeometry(0, 0, 1440, 900)
-        # self.setGeometry(0, 0, 1200, 900)
         self.show()
 
     def qt_connections(self):
@@ -145,21 +155,6 @@ class AppGUI(QtGui.QWidget):
         self.y_slice_slider.valueChanged.connect(self.y_slice_slider_changed)
         self.x_slice_slider.valueChanged.connect(self.x_slice_slider_changed)
         self.steps_state.connect(self.update_steps_progress_bar)
-
-    # def mouseMoved(self, event):
-        # print('mouseMoved event')
-
-    def mouseMoveEvent(self, ev):
-        print('pp')
-
-    def l_spin_value_changed(self):
-        self.model.l = self.l_spin.value()
-
-    def h_spin_value_changed(self):
-        self.model.h = self.h_spin.value()
-    
-    def f_spin_value_changed(self):
-        self.model.f = self.f_spin.value()
 
     @QtCore.pyqtSlot(int)
     def update_steps_progress_bar(self, current_step):
@@ -178,46 +173,6 @@ class AppGUI(QtGui.QWidget):
         self.array_to_vis_changed()
 
 
-    def array_to_vis_changed(self):
-        
-        mapping = {
-            'P' : self.model.P,
-            'r' : self.model.r,
-            'ro': self.model.ro,
-            'c' : self.model.c,
-            'K' : self.model.K,
-        }
-
-        for r in self.arrays_to_vis:
-            if r.isChecked():
-                self.data = mapping[r.text()]
-                self.z_slice_img.setImage(self.data[self.z_slice      ])
-                self.y_slice_img.setImage(self.data[:, self.y_slice, :])
-                self.x_slice_img.setImage(self.data[:, :, self.x_slice])
-
-    def print_mean(self):
-        # pass
-        print(f'slices mean Z, Y, X   {np.mean(self.data[self.z_slice]):8.3e}    {np.mean(self.data[:, self.y_slice, :]):8.3e}    {np.mean(self.data[:, :, self.x_slice]):8.3e}    cube mean: {np.mean(self.data):8.3e}')
-
-    def do_steps(self):
-        for i in range(self.steps_spin.value()):
-            self.model.step()
-
-            self.z_slice_img.setImage(self.data[self.z_slice      ])
-            self.y_slice_img.setImage(self.data[:, self.y_slice, :])
-            self.x_slice_img.setImage(self.data[:, :, self.x_slice])
-           
-            self.source_curve.setData(self.model.source_signal)
-            self.observ_curve.setData(self.model.observ_signal)
-
-            self.observ_slice = np.roll(self.observ_slice, -1)
-            self.observ_slice[-1] = self.model.P[self.z_slice, self.y_slice, self.x_slice]
-            self.observ_slice_curve.setData(self.observ_slice)
-
-            self.steps_state.emit(i + 1)
-            self.print_mean()
-        self.steps_state.emit(0)       
-
     def wheelEvent(self, event):
         if self.z_slice_img.sceneBoundingRect().contains(self.glayout.mapFromParent(event.pos())):
             self.z_slice = np.clip(self.z_slice + np.sign(event.angleDelta().y()), 0, self.data.shape[0] - 1) # change bounds 0..N-1 => 1..N
@@ -228,16 +183,6 @@ class AppGUI(QtGui.QWidget):
         elif self.x_slice_img.sceneBoundingRect().contains(self.glayout.mapFromParent(event.pos())):
             self.x_slice = np.clip(self.x_slice + np.sign(event.angleDelta().y()), 0, self.data.shape[2] - 1) # change bounds 0..N-1 => 1..N
             self.x_slice_slider.setValue(self.x_slice)
-
-    def keyPressEvent(self, event):
-        if type(event) == QtGui.QKeyEvent and event.key() == QtCore.Qt.Key_Up:
-            self.do_steps()
-            #here accept the event and do something
-            # self.record_values_button_clicked()
-            event.accept()
-        else:
-            event.ignore()
-
 
 
     def update_slice_helpers_lines(self):
@@ -264,21 +209,18 @@ class AppGUI(QtGui.QWidget):
         self.z_slice = self.z_slice_slider.value()
         self.z_slice_label.setText(f'Z axis [{self.z_axis_name[0]} - {self.z_axis_name[1]}] Slice: {self.z_slice + 1}/{self.data.shape[0]}')
         self.z_slice_img.setImage(self.data[self.z_slice])
-        self.print_mean()
         self.update_slice_helpers_lines()
 
     def y_slice_slider_changed(self):
         self.y_slice = self.y_slice_slider.value()
         self.y_slice_label.setText(f'Y axis [{self.y_axis_name[0]} - {self.y_axis_name[1]}] Slice: {self.y_slice + 1}/{self.data.shape[1]}')
         self.y_slice_img.setImage(self.data[:, self.y_slice, :])
-        self.print_mean()
         self.update_slice_helpers_lines()
 
     def x_slice_slider_changed(self):
         self.x_slice = self.x_slice_slider.value()
         self.x_slice_label.setText(f'X axis [{self.x_axis_name[0]} - {self.x_axis_name[1]}] Slice: {self.x_slice + 1}/{self.data.shape[2]}')
         self.x_slice_img.setImage(self.data[:, :, self.x_slice])
-        self.print_mean()
         self.update_slice_helpers_lines()
 
 
